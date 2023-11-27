@@ -154,7 +154,7 @@ class MedCLIPProcessor(CLIPProcessor):
         super().__init__(feature_extractor, tokenizer)
 
 class ImageTextContrastiveDataset(Dataset):
-    _labels_ = ['No Finding', 'Enlarged Cardiomediastinum', 'Cardiomegaly', 'Lung Lesion', 'Lung Opacity', 'Edema', 'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural Effusion', 'Pleural Other', 'Fracture', 'Support Devices']
+    _labels_ = ['report', 'No Finding', 'Enlarged Cardiomediastinum', 'Cardiomegaly', 'Lung Lesion', 'Lung Opacity', 'Edema', 'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural Effusion', 'Pleural Other', 'Fracture', 'Support Devices']
     def __init__(self, datalist=['mimic-cxr-train', 'chexpert-train'], imgtransform=None) -> None:
         '''support data list in mimic-cxr-train, chexpert-train
         '''
@@ -162,7 +162,7 @@ class ImageTextContrastiveDataset(Dataset):
         # imgpath, subject_id, report, labels...(14 labels)
         df_list = []
         for data in datalist:
-            filename = f'./local_data/{data}-meta.csv'
+            filename = f'../local_data/{data}-meta.csv'
             print('load data from', filename)
             df = pd.read_csv(filename, index_col=0)
             df_list.append(df)
@@ -184,8 +184,8 @@ class ImageTextContrastiveDataset(Dataset):
             self.transform = imgtransform
 
         # use labeled sentences as prompts for chexpert training
-        self.sentence_label = pd.read_csv('./local_data/sentence-label.csv', index_col=0).fillna(0)
-        print('load sentence prompts from ./local_data/sentence-label.csv')
+        self.sentence_label = pd.read_csv('../local_data/sentence-label.csv', index_col=0).fillna(0)
+        print('load sentence prompts from ../local_data/sentence-label.csv')
         self._preprocess_sentence_label()
         self._build_prompt_sentence()
 
@@ -251,6 +251,8 @@ class ImageTextContrastiveDataset(Dataset):
         '''do preprocessing to split raw reports into sentence segments for
         sentence-image contrastive pretraining.
         '''
+        print(df)
+        print(df.columns)
         df['report'] = df['report'].apply(self._split_report_into_segment)
         return df
 
@@ -292,10 +294,12 @@ class ImageTextContrastiveDataset(Dataset):
             return study_sent
 
     def _preprocess_sentence_label(self):
-        self.sentence_label = self.sentence_label.drop_duplicates(subset='Reports')
-        self.sentence_label = self.sentence_label[self.sentence_label['Reports'].map(len)>2].reset_index(drop=True)
-        self.sentence_label['report'] = self.sentence_label['Reports']
-        self.sentence_label = self.sentence_label.drop('Reports', axis=1)
+        print('preprocess sentence label.')
+        print(self.sentence_label)
+        # self.sentence_label = self.sentence_label.drop_duplicates(subset='report')
+        # self.sentence_label = self.sentence_label[self.sentence_label['report'].map(len)>2].reset_index(drop=True)
+        # self.sentence_label['report'] = self.sentence_label['report']
+        # self.sentence_label = self.sentence_label.drop('report', axis=1)
         self.sentence_label = self.create_sent_segments(self.sentence_label)
         self.sentence_label = self.sentence_label[(self.sentence_label['report'].map(len)==1)]
         self.sentence_label['report'] = np.concatenate(self.sentence_label['report'].values)
@@ -389,7 +393,7 @@ class ZeroShotImageDataset(Dataset):
         # imgpath, subject_id, report, labels...(14 labels)
         df_list = []
         for data in datalist:
-            filename = f'./local_data/{data}-meta.csv'
+            filename = f'../local_data/{data}-meta.csv'
             print('load data from', filename)
             df = pd.read_csv(filename, index_col=0)
             df_list.append(df)
@@ -478,7 +482,7 @@ class SuperviseImageDataset(Dataset):
         # imgpath, subject_id, report, labels...(14 labels)
         df_list = []
         for data in datalist:
-            filename = f'./local_data/{data}-meta.csv'
+            filename = f'../local_data/{data}-meta.csv'
             print('load data from', filename)
             df = pd.read_csv(filename, index_col=0)
             df_list.append(df)
@@ -557,7 +561,7 @@ class PromptTuningImageDataset(Dataset):
         # imgpath, subject_id, report, labels...(14 labels)
         df_list = []
         for data in datalist:
-            filename = f'./local_data/{data}-meta.csv'
+            filename = f'../local_data/{data}-meta.csv'
             print('load data from', filename)
             df = pd.read_csv(filename, index_col=0)
             df_list.append(df)
