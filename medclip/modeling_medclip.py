@@ -186,7 +186,7 @@ class MedCLIPModel(nn.Module):
         print('load model weight from:', input_dir)
 
     def encode_text(self, input_ids=None, attention_mask=None):
-        input_ids = input_ids.cuda()
+        input_ids = input_ids
         if attention_mask is not None:
             attention_mask = attention_mask.cuda()
         text_embeds = self.text_model(input_ids, attention_mask)
