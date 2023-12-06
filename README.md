@@ -5,6 +5,8 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/ryanwangzf/medclip)
 ![GitHub Repo forks](https://img.shields.io/github/forks/ryanwangzf/medclip)
 
+NIH dataset: https://www.kaggle.com/datasets/nih-chest-xrays/data/data
+
 
 Wang, Zifeng and Wu, Zhenbang and Agarwal, Dinesh and Sun, Jimeng. (2022). MedCLIP: Contrastive Learning from Unpaired Medical Images and Texts. EMNLP'22.
 

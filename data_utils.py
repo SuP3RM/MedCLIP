@@ -55,11 +55,11 @@ def load_dataset(name, transform=None, data_dir=None):
         if data_dir is None:
             data_dir = "data/nih"
             
-        raise NotImplementedError("This dataset isn't implemented")
+        return load_nih_dataset_split(data_dir, transform)
     else:
         raise ValueError("expected either 'HAM10000' or 'NIH', but received " + name)
 
-def load_ham10000_dataset(data_dir="data/ham10000", transform=None, split=True):
+def load_ham10000_dataset(data_dir="data/ham10000/", transform=None, split=True):
     print("Loading HAM10000 dataset...")
     df = get_dataframe(data_dir)
     dataset = HAM10000(df, transform)
@@ -163,7 +163,12 @@ class NIHDataset(Dataset):
         return df_original[['path', 'Finding Labels']]
 
 
-def load_nih_dataset_split(data_dir="data/nih/", transform=None):
+def load_nih_dataset_split(data_dir="data/nih/", transform=None, split=True):
+    """
+    Loads the NIH dataset from data_dir, applying transform.
+
+    Returns a training and testing/val dataset
+    """
     print("Selecting random image directory...")
     # load csv file
     csv_file_location = os.path.join(data_dir, "Data_Entry_2017.csv")
@@ -176,11 +181,14 @@ def load_nih_dataset_split(data_dir="data/nih/", transform=None):
     Dataset = NIHDataset(csv_file_location, dataset_location, transform)
     print(f"Original Dataset length: {Dataset.__len__()}")
 
-    # split dataset
-    train_size = int(0.8 * len(Dataset))
-    test_size = len(Dataset) - train_size
-    train_dataset, test_dataset = random_split(Dataset, [train_size, test_size])
-    print(f"Train dataset length: {train_dataset.__len__()}")
-    print(f"Test dataset length: {test_dataset.__len__()}")
-    # print(f"Exmaple of train dataset: {train_dataset.__getitem__(0)}")
-    return train_dataset, test_dataset
+    if split:
+        # split dataset
+        train_size = int(0.9 * len(Dataset))
+        test_size = len(Dataset) - train_size
+        train_dataset, test_dataset = random_split(Dataset, [train_size, test_size])
+        print(f"Train dataset length: {train_dataset.__len__()}")
+        print(f"Test dataset length: {test_dataset.__len__()}")
+        # print(f"Exmaple of train dataset: {train_dataset.__getitem__(0)}")
+        return train_dataset, test_dataset
+    else:
+        return Dataset
